@@ -4,23 +4,30 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Flood Safe SG</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Roboto', sans-serif;
       background: linear-gradient(to bottom right, #e0f7fa, #b2ebf2);
-      display: flex;
-      justify-content: center;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #00796b;
+      color: white;
       padding: 20px;
+      text-align: center;
+      font-size: 1.8rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     .container {
-      max-width: 800px;
-      width: 100%;
+      max-width: 900px;
+      margin: 20px auto;
       background: white;
       border-radius: 15px;
       padding: 20px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
     }
-    h1 { text-align: center; color: #00796b; }
     section {
       margin-top: 20px;
       padding: 15px;
@@ -28,15 +35,9 @@
       border-radius: 10px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-    .flood-card {
-      padding: 10px;
-      margin-bottom: 10px;
-      border-left: 5px solid red;
-      border-radius: 8px;
-      background: #ffebee;
-    }
-    input, select, button {
-      padding: 5px;
+    h2 { color: #00796b; }
+    input, button {
+      padding: 8px;
       border-radius: 5px;
       border: 1px solid #ccc;
       margin-right: 5px;
@@ -47,19 +48,28 @@
       border: none;
       cursor: pointer;
     }
+    .flood-card {
+      padding: 10px;
+      margin-bottom: 10px;
+      border-left: 5px solid red;
+      border-radius: 8px;
+      background: #ffebee;
+      cursor: pointer;
+    }
     ul { max-height: 150px; overflow-y: auto; padding-left: 20px; }
-    .hosting-info {
-      margin-top: 30px;
+    footer {
+      text-align: center;
       padding: 15px;
-      background: #fff3e0;
-      border-radius: 10px;
-      border-left: 5px solid #ffa726;
+      background-color: #004d40;
+      color: white;
+      margin-top: 20px;
+      border-radius: 0 0 15px 15px;
     }
   </style>
 </head>
 <body>
+  <header>Flood Safe SG</header>
   <div class="container">
-    <h1>Flood Safe SG</h1>
     <section>
       <label>Alert Radius (km): </label>
       <input type="number" id="radius" value="2">
@@ -67,7 +77,7 @@
     <section>
       <h2>Saved Routes</h2>
       <input type="text" id="newRoute" placeholder="Enter route (e.g., Home to Work)">
-      <button onclick="addRoute()">Add Route</button>
+      <button id="addRouteBtn">Add Route</button>
       <ul id="routesList"></ul>
     </section>
     <section>
@@ -81,16 +91,10 @@
       <h2>Flood History</h2>
       <ul id="historyList"></ul>
     </section>
-    <section class="hosting-info">
-      <h2>Hosting Instructions</h2>
-      <ol>
-        <li>Use <strong>GitHub Pages</strong>: push this HTML file to a repository and enable GitHub Pages to serve it.</li>
-        <li>Use <strong>Netlify or Vercel</strong>: drag-and-drop the HTML file into Netlify dashboard or deploy via Vercel for free hosting.</li>
-        <li>Use any standard web hosting: upload the HTML file via FTP or web manager.</li>
-      </ol>
-      <p>This file is standalone and can be opened locally in a browser, but hosting will allow access from any device with an internet connection.</p>
-    </section>
   </div>
+  <footer>
+    &copy; 2025 Flood Safe SG. Developed for Singapore residents.
+  </footer>
   <script>
     const routes = [];
     const history = [];
@@ -104,18 +108,19 @@
       const radius = Number(document.getElementById('radius').value);
       const filtered = floodEvents.filter(f => f.distance <= radius);
       const alertsDiv = document.getElementById('floodAlerts');
+      alertsDiv.innerHTML = '';
+
       if (filtered.length === 0) {
         alertsDiv.innerHTML = 'No floods nearby.';
       } else {
-        alertsDiv.innerHTML = '';
         filtered.forEach(f => {
           const div = document.createElement('div');
           div.className = 'flood-card';
           div.innerHTML = `<strong>${f.severity}</strong> flood at ${f.location} (${f.distance} km away)`;
+          div.onclick = () => alert(`Details:\nLocation: ${f.location}\nSeverity: ${f.severity}\nDistance: ${f.distance} km`);
           alertsDiv.appendChild(div);
 
-          const voiceCheck = document.getElementById('voiceAlerts').checked;
-          if (voiceCheck) {
+          if (document.getElementById('voiceAlerts').checked) {
             const utterance = new SpeechSynthesisUtterance(`${f.location}: ${f.severity} flood alert!`);
             speechSynthesis.speak(utterance);
           }
@@ -146,12 +151,14 @@
         const list = document.getElementById('routesList');
         const li = document.createElement('li');
         li.textContent = value;
+        li.onclick = () => alert(`Route Details: ${value}`);
         list.appendChild(li);
       }
     }
 
     document.getElementById('radius').addEventListener('input', updateFloodAlerts);
     document.getElementById('voiceAlerts').addEventListener('change', updateFloodAlerts);
+    document.getElementById('addRouteBtn').addEventListener('click', addRoute);
 
     updateFloodAlerts();
   </script>
